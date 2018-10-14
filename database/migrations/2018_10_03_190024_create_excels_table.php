@@ -17,6 +17,7 @@ class CreateExcelsTable extends Migration
             $table->increments('id');
             $table->string('titulo');
             $table->string('descripcion');
+            $table->string('file')->nullable();
             $table->timestamps();
         });
     }

@@ -11,29 +11,8 @@
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
-});
-
-Auth::routes();
-
 Route::get('/home', 'HomeController@index')->name('home');
 
-Route::middleware(['auth'])->group(function(){
-
-	//Role
-
-	Route::resource('roles', 'RoleController');
-
-	//Users
-
-	Route::resource('users', 'UserController');
-
-	//Users
-
-	Route::resource('excels', 'ExcelController');
-
-
-			
-
+Route::get('/', function () {
+    return view('welcome');
 });

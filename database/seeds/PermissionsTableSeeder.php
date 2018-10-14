@@ -26,7 +26,7 @@ class PermissionsTableSeeder extends Seeder
 
         Permission::create([
             'name'          => 'Editar',
-            'slug'          => 'permiso.editar',
+            'slug'          => 'permitir.editar',
             'description'   => 'permiso de editor',
         ]);
 

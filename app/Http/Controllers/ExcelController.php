@@ -3,14 +3,18 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Http\Requests\ExcelStoreRequest;
+use App\Http\Requests\ExcelUpdateRequest;
 use App\Excel;
+use Illuminate\Support\Facades\Storage;
+
 class ExcelController extends Controller
 {
 
     public function __construct(){
 
 
-        $this->middleware('role:admin')->only(['index']);
+        $this->middleware('role:admin');
 
 
     }
@@ -20,9 +24,16 @@ class ExcelController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        $excels = Excel::all();
+
+        $title       = $request->get('titulo');
+        $description = $request->get('descripcion');
+
+        $excels = Excel::orderBy('id','DESC')
+            ->Title($title)
+            ->Description($description)
+            ->paginate(3);
 
         return view('uploadExcels.index', compact('excels'));
     }
@@ -43,13 +54,20 @@ class ExcelController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(ExcelStoreRequest $request)
     {
 
-        $excel = (new Excel)->fill($request->all());
-        $request->file('excel')->store('public');
+        //$excel = (new Excel)->fill($request->all());
+        //$request->file('excel')->store('public');
+        $excel = Excel::create($request->all());
 
-        $excel->save();
+        if($request->file('file')){
+
+            $path = Storage::disk('public')->put('archivos', $request->file('file'));
+
+            $excel->fill(['file' => asset($path)])->save();
+        }
+        
 
         return redirect()->route('excels.edit', $excel->id)
            ->with('info', 'Datos guardados con éxito!');
@@ -87,9 +105,22 @@ class ExcelController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(ExcelUpdateRequest $request, $id)
     {
-        //
+
+        $excel = Excel::find($id);
+
+        $excel->fill($request->all())->save();
+
+        if($request->file('file')){
+
+            $path = Storage::disk('public')->put('archivos', $request->file('file'));
+
+            $excel->fill(['file' => asset($path)])->save();
+        }
+       
+       return redirect()->route('excels.edit', $excel->id)
+           ->with('info', 'Datos Actualizados con éxito!');
     }
 
     /**
